@@ -28,6 +28,9 @@ import frc.robot.subsystems.flywheel.FlywheelIOSpark;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOServo;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhoton;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -41,6 +44,7 @@ public class RobotContainer {
   private final Drive drive;
   private final Flywheel flywheel;
   private final Indexer indexer;
+  private final Vision vision;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -56,6 +60,7 @@ public class RobotContainer {
         drive = new Drive(new DriveIOSpark(), new GyroIONavX());
         flywheel = new Flywheel(new FlywheelIOSpark());
         indexer = new Indexer(new IndexerIOServo());
+        vision = new Vision(new VisionIOPhoton());
         break;
 
       case SIM:
@@ -63,6 +68,7 @@ public class RobotContainer {
         drive = new Drive(new DriveIOSim(), new GyroIO() {});
         flywheel = new Flywheel(new FlywheelIO() {});
         indexer = new Indexer(new IndexerIO() {});
+        vision = new Vision(new VisionIO() {});
         break;
 
       default:
@@ -70,8 +76,12 @@ public class RobotContainer {
         drive = new Drive(new DriveIO() {}, new GyroIO() {});
         flywheel = new Flywheel(new FlywheelIO() {});
         indexer = new Indexer(new IndexerIO() {});
+        vision = new Vision(new VisionIO() {});
         break;
     }
+
+    // Set up vision measurement consumer to feed vision data into the drive pose estimator
+    vision.setVisionMeasurementConsumer(drive::addVisionMeasurement);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -93,7 +103,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    flywheel.setState(RotationsPerSecond.of(30.0));
+    flywheel.setState(RotationsPerSecond.of(60.0));
   }
 
   /**
@@ -110,6 +120,8 @@ public class RobotContainer {
 
     controller.leftBumper().whileTrue(flywheel.runHeld());
     controller.x().whileTrue(indexer.loadRelease());
+
+    controller.a().whileTrue(DriveCommands.aimAtHub(drive, () -> -controller.getLeftY()));
 
     controller.rightBumper().whileTrue(indexer.setGoalCommand(Indexer.Goal.OPEN));
     controller.rightBumper().onFalse(indexer.setGoalCommand(Indexer.Goal.CLOSED));

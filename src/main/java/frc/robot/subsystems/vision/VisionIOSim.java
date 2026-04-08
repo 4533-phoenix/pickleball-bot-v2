@@ -5,17 +5,17 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
-package frc.robot.services.vision;
+package frc.robot.subsystems.vision;
 
-import static frc.robot.services.vision.VisionConstants.*;
+import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.services.vision.Vision.VisionObservation;
-import frc.robot.services.vision.VisionConstants.CameraConfig;
+import frc.robot.subsystems.vision.Vision.VisionObservation;
+import frc.robot.subsystems.vision.VisionConstants.CameraConfig;
 import java.util.function.Supplier;
 
 /**

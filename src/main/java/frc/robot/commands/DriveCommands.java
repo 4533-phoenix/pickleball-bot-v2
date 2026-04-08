@@ -10,6 +10,8 @@ package frc.robot.commands;
 import static frc.robot.subsystems.drive.DriveConstants.maxSpeedMetersPerSec;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -96,5 +98,44 @@ public class DriveCommands {
                   System.out.println("\tkS: " + formatter.format(kS));
                   System.out.println("\tkV: " + formatter.format(kV));
                 }));
+  }
+
+  /**
+   * Drives the robot manually forward/backward while automatically rotating to face a known field
+   * coordinate (the hub).
+   */
+  public static Command aimAtHub(Drive drive, DoubleSupplier fwdSupplier) {
+    // The exact field coordinates of the hub (Update these X/Y meters for your specific game)
+    Translation2d hubLocation = new Translation2d(4.6255178, 4.0346376);
+
+    // PID Controller to calculate rotation speed based on angle error.
+    PIDController thetaController = new PIDController(2.5, 0.0, 0.1);
+
+    // Ensures the robot takes the shortest rotational path (e.g., passing through 180 degrees)
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return Commands.run(
+        () -> {
+          // Get the robot's current estimated pose on the field
+          var currentPose = drive.getPose();
+
+          // Calculate the target angle from the robot to the hub
+          var targetAngle = hubLocation.minus(currentPose.getTranslation()).getAngle();
+
+          // Calculate rotational speed using the PID controller
+          double rotationSpeed =
+              thetaController.calculate(
+                  currentPose.getRotation().getRadians(), targetAngle.getRadians());
+
+          // Calculate left/right wheel speeds using WPILib's Inverse Kinematics
+          // We pass 'false' for squareInputs because the PID controller outputs linear corrections
+          var speeds =
+              DifferentialDrive.arcadeDriveIK(fwdSupplier.getAsDouble(), rotationSpeed, false);
+
+          // Apply the calculated speeds to the drivetrain's closed-loop controllers
+          drive.runClosedLoop(
+              speeds.left * maxSpeedMetersPerSec, speeds.right * maxSpeedMetersPerSec);
+        },
+        drive);
   }
 }

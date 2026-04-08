@@ -5,10 +5,10 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
-package frc.robot.services.vision;
+package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.services.vision.VisionConstants.*;
+import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -18,8 +18,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
-import frc.lib.IMUState;
-import frc.lib.monitor.MonitoredBaseService;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Collections;
 import org.littletonrobotics.junction.Logger;
 
@@ -30,7 +29,7 @@ import org.littletonrobotics.junction.Logger;
  * measurements into the Drive subsystem's pose estimator to refine the robot's field position. Also
  * monitors camera health and status using highly optimized zero-allocation data structures.
  */
-public class Vision extends MonitoredBaseService {
+public class Vision extends SubsystemBase {
   /** A record representing a single vision observation. */
   public record VisionObservation(
       Pose2d visionPose,
@@ -100,20 +99,11 @@ public class Vision extends MonitoredBaseService {
   }
 
   /**
-   * Forwards a high frequency IMU packet to the vision pipeline.
-   *
-   * @param imuState The current 6-DOF IMU state.
-   */
-  public void broadcastTelemetry(IMUState imuState) {
-    io.broadcastTelemetry(imuState);
-  }
-
-  /**
    * Processes vision measurements, filters invalid data, updates the drive pose estimator, and
    * checks camera status.
    */
   @Override
-  public void update() {
+  public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Vision", inputs);
 
@@ -127,14 +117,14 @@ public class Vision extends MonitoredBaseService {
       }
 
       // Single-tag detections are often unreliable for field position
-      if (inputs.observations[i].tagCount() <= 1) {
+      if (inputs.observations[i].tagCount() == 0) {
         continue;
       }
 
       // Update Consumer with refined pose
       stdVector.set(0, 0, inputs.observations[i].stdDevX());
       stdVector.set(1, 0, inputs.observations[i].stdDevY());
-      stdVector.set(2, 0, Double.MAX_VALUE);
+      stdVector.set(2, 0, inputs.observations[i].stdDevRot());
 
       if (measurementConsumer != null) {
         measurementConsumer.accept(

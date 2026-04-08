@@ -5,10 +5,9 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
-package frc.robot.services.vision;
+package frc.robot.subsystems.vision;
 
-import frc.lib.IMUState;
-import frc.robot.services.vision.Vision.VisionObservation;
+import frc.robot.subsystems.vision.Vision.VisionObservation;
 import org.littletonrobotics.junction.AutoLog;
 
 /**
@@ -32,11 +31,4 @@ public interface VisionIO {
    * @param inputs The inputs object to update.
    */
   public default void updateInputs(VisionIOInputs inputs) {}
-
-  /**
-   * Broadcasts the high frequency 6-DOF IMU state to the vision coprocessor.
-   *
-   * @param imuState The latest snapshot of the robot's IMU.
-   */
-  public default void broadcastTelemetry(IMUState imuState) {}
 }

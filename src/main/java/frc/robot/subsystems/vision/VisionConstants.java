@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
-package frc.robot.services.vision;
+package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -47,32 +47,12 @@ public class VisionConstants {
       Map.of(
           1,
           new CameraConfig(
-              "Front",
+              "Camera",
               new Transform3d(
-                  Meters.of(-0.105),
-                  Meters.of(-0.0075),
-                  Meters.of(49.590851),
-                  new Rotation3d(Degrees.of(180.0), Degrees.of(-5.0), Degrees.of(0.0))),
-              92.0,
-              10.0),
-          2,
-          new CameraConfig(
-              "Back Left",
-              new Transform3d(
-                  Meters.of(-0.3068556),
-                  Meters.of(0.1930089),
-                  Meters.of(0.23971232),
-                  new Rotation3d(Degrees.of(90.0), Degrees.of(-20.0), Degrees.of(133.0))),
-              92.0,
-              10.0),
-          3,
-          new CameraConfig(
-              "Back Right",
-              new Transform3d(
-                  Meters.of(-0.2916262),
-                  Meters.of(-0.2806894),
-                  Meters.of(0.25494719),
-                  new Rotation3d(Degrees.of(0.0), Degrees.of(-20.0), Degrees.of(-135.0))),
+                  Centimeters.of(12.5),
+                  Centimeters.of(0.0),
+                  Centimeters.of(25.0),
+                  new Rotation3d(Degrees.of(180.0), Degrees.of(15.0), Degrees.of(0.0))),
               92.0,
               10.0));
 
